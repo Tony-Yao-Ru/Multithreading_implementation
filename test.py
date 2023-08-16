@@ -23,12 +23,12 @@ class Mainwin(QMainWindow):
 
         # Initialize the showing window
         # Create a roi
-        self.data = self.data_fetch()
+        self.data = np.zeros((100, 100))
         roi_size = (20, 20)
         roi_position = (0, 0)
         self.roi = pg.RectROI(roi_position, roi_size, pen=(0, 9))
 
-        self.img1 = pg.ImageItem()
+        self.img1 = pg.ImageItem(self.data)
         scene1 = QGraphicsScene()
         widget1 = pg.GraphicsLayoutWidget()
         p1 = widget1.addPlot()
@@ -123,7 +123,7 @@ class Calculation(QObject):
     finished = pyqtSignal()
     showPos = pyqtSignal(int)
     plotImg = pyqtSignal()
-    progress = pyqtSignal(int, int)
+    progress = pyqtSignal(int, float)
 
     def setup(self, mainWin):
         self.mainWin = mainWin
@@ -235,7 +235,8 @@ class Calculation(QObject):
             if self.flag_start_plotResult:
                 print("Thread PlotResult")
                 self.flag_start_plotResult = False
-                self.progress.emit(self.step, self.speed_shutter*10)
+                self.progress.emit(
+                    self.step, self.speed_shutter*(100/self.end))
                 self.flag_start_motor = True
 
 
@@ -245,7 +246,7 @@ def update_position(iterationShowing, pos):
 
 def update_progress(iterationShowing, progressBar, pos, progress):
     iterationShowing.display(pos)
-    progressBar.setValue(progress)
+    progressBar.setValue(int(progress))
 
 # def Calmode_update_graph(Mainwin):
 #     Mainwin.update_mainWindow()
